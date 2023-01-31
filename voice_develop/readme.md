@@ -142,11 +142,27 @@ total 6.6M
 中英混合模型：
 
 ```
-sudo apt-get install git-lfs
+sudo apt-get install git-lfs   # git插件
 ```
 
 ```
 GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-06
 cd sherpa-ncnn-conv-emformer-transducer-2022-12-06
 git lfs pull --include "*.bin"
+```
+
+完成之后查看得到：
+
+```
+ubuntu@VM-12-13-ubuntu:~/software/sherpa-ncnn-conv-emformer-transducer-2022-12-06$ ls -lh {encoder,decoder,joiner}*
+-rw-rw-r-- 1 ubuntu ubuntu 5.9M Jan 28 13:51 decoder_jit_trace-pnnx.ncnn.bin
+-rw-rw-r-- 1 ubuntu ubuntu  439 Jan 28 13:46 decoder_jit_trace-pnnx.ncnn.param
+-rw-rw-r-- 1 ubuntu ubuntu 142M Jan 28 14:28 encoder_jit_trace-pnnx.ncnn.bin
+-rw-rw-r-- 1 ubuntu ubuntu  99M Jan 28 14:02 encoder_jit_trace-pnnx.ncnn.int8.bin
+-rw-rw-r-- 1 ubuntu ubuntu  78K Jan 28 13:46 encoder_jit_trace-pnnx.ncnn.int8.param
+-rw-rw-r-- 1 ubuntu ubuntu  79K Jan 28 13:46 encoder_jit_trace-pnnx.ncnn.param
+-rw-rw-r-- 1 ubuntu ubuntu 7.0M Jan 28 13:51 joiner_jit_trace-pnnx.ncnn.bin
+-rw-rw-r-- 1 ubuntu ubuntu 3.5M Jan 28 13:51 joiner_jit_trace-pnnx.ncnn.int8.bin
+-rw-rw-r-- 1 ubuntu ubuntu  498 Jan 28 13:46 joiner_jit_trace-pnnx.ncnn.int8.param
+-rw-rw-r-- 1 ubuntu ubuntu  490 Jan 28 13:46 joiner_jit_trace-pnnx.ncnn.p
 ```

@@ -8,7 +8,7 @@ import struct
 import pyaudio
 import pvporcupine
 import wave
-import speech_recognition as sr
+# import speech_recognition as sr
 from aip import AipSpeech
 
 
@@ -50,26 +50,27 @@ def my_record():
         print('.',end="")
     save_wave_file('output.wav',my_buf)
     stream.close()
+
 # 直接调取麦克风权限录音5秒，返回识别结果
-def voice_to_speech_google():
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        audio_data = r.record(source, duration=5)
-        print("Recognizing...")
-        question = r.recognize_google(audio_data,language="zh-cn")
-    return question
-    print(question)
-# 输出音频识别结果
+# def voice_to_speech_google():
+#     r = sr.Recognizer()
+#     with sr.Microphone() as source:
+#         audio_data = r.record(source, duration=5)
+#         print("Recognizing...")
+#         question = r.recognize_google(audio_data,language="zh-cn")
+#     return question
+#     print(question)
+
+# 输出音频识别结果(字符串)
 def voice_to_text_baidu_sdk(filePath):
     with open(filePath, 'rb') as fp:
     # 识别本地文件
-        start = time.time()
         result = client.asr(fp.read(), 'pcm', 16000, {
             'dev_pid': 1537,
         })
         end = time.time()
-        print(end-start)
-        print(result.get('result')[0])
+        # print(result.get('result')[0])
+        return result.get('result')[0]
 
 # 输入为字符串，输出为问题答案
 def chat_unit(QUESTION):   
@@ -78,6 +79,12 @@ def chat_unit(QUESTION):
     answer = json.loads(response.text)
     return answer
     # print(answer['result']['responses'][0]['actions'][0]['say'])
+
+def chat_own_think(Question):
+    temp = requests.get('https://api.ownthink.com/bot?spoken=' + Question)
+    answer = temp.text
+    answer = json.loads(answer)
+    return answer['data']['info']['text']
 
 
 # porcupine = pvporcupine.create(keyword_paths=['samel__en_windows_2021-10-26-utc_v1_9_0.ppn'])
@@ -90,6 +97,8 @@ audio_stream = pa.open(
                     frames_per_buffer=porcupine.frame_length)
 #def get_next_audio_frame():
 #  return 
+
+
 while True:
     pcm = audio_stream.read(porcupine.frame_length)
     pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
@@ -98,6 +107,12 @@ while True:
         # Insert detection event callback here
         print("收到,请讲话：")
         my_record()
-        question = str(voice_to_text_baidu_sdk('output.wav'))
+        question = voice_to_text_baidu_sdk('output.wav')
+        print(question)
+        
         # print(chat_unit(question)['result']['context']['SYS_PRESUMED_HIST'][-1])
-        print(chat_unit(question)['result'])
+        print(chat_own_think(question))
+        
+        
+
+# print(chat_unit('枣庄今天天气怎么样')['result']['context']['SYS_PRESUMED_HIST'][-1])

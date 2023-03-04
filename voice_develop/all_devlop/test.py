@@ -17,7 +17,7 @@ APP_ID = '24690625'
 API_KEY = '4wvprFyDikit7dGDmr3qMVW1'
 SECRET_KEY = 'xGZ3AyezrZpncTYnTaXdoONVWfvKB3op'
 client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
-url = 'https://aip.baidubce.com/rpc/2.0/unit/service/v3/chat?access_token=24.7a069087f696cb7d853f3ee33a4efcbf.2592000.1676606399.282335-29476996' # token id
+url = 'https://aip.baidubce.com/rpc/2.0/unit/service/v3/chat?access_token=24.3666976f79d1b2fa4394975b9220df55.2592000.1680009411.282335-29476996' # token id
 headers = {'content-type': 'application/x-www-form-urlencoded'}
 access_key = "c7E0vdPeiP6qg4pXo/AdHrMq9a6UFx6qczLYex7g0qKwmFkJm0UEmQ==" #porcupine
 porcupine = pvporcupine.create( access_key=access_key,keywords=['porcupine', 'ok google', "picovoice", "blueberry"])
@@ -99,20 +99,20 @@ audio_stream = pa.open(
 #  return 
 
 
-while True:
-    pcm = audio_stream.read(porcupine.frame_length)
-    pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
-    keyword_index = porcupine.process(pcm)
-    if keyword_index >= 0:
-        # Insert detection event callback here
-        print("收到,请讲话：")
-        my_record()
-        question = voice_to_text_baidu_sdk('output.wav')
-        print(question)
+# while True:
+#     pcm = audio_stream.read(porcupine.frame_length)
+#     pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
+#     keyword_index = porcupine.process(pcm)
+#     if keyword_index >= 0:
+#         # Insert detection event callback here
+#         print("收到,请讲话：")
+#         my_record()
+#         question = voice_to_text_baidu_sdk('output.wav')
+#         print(question)
         
-        # print(chat_unit(question)['result']['context']['SYS_PRESUMED_HIST'][-1])
-        print(chat_own_think(question))
+#         # print(chat_unit(question)['result']['context']['SYS_PRESUMED_HIST'][-1])
+#         print(chat_own_think(question))
         
         
 
-# print(chat_unit('枣庄今天天气怎么样')['result']['context']['SYS_PRESUMED_HIST'][-1])
+print(chat_unit('今天是星期几')['result']['responses'][0]['actions'][0]['say'])

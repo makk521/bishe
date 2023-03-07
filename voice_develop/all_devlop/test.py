@@ -70,8 +70,10 @@ def voice_to_text_baidu_sdk(filePath):
         })
         end = time.time()
         # print(result.get('result')[0])
-        return result.get('result')[0]
-
+        try:
+            return result.get('result')[0]
+        except TypeError:
+            return ' '
 # 输入为字符串，输出为问题答案
 def chat_unit(QUESTION):   
     post_data = "{\"version\":\"3.0\",\"service_id\":\"S80122\",\"session_id\":\"\",\"log_id\":\"1114749\",\"request\":{\"terminal_id\":\"88888\",\"query\":\"" + QUESTION +"\"}} "
@@ -99,20 +101,33 @@ audio_stream = pa.open(
 #  return 
 
 
-# while True:
-#     pcm = audio_stream.read(porcupine.frame_length)
-#     pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
-#     keyword_index = porcupine.process(pcm)
-#     if keyword_index >= 0:
-#         # Insert detection event callback here
-#         print("收到,请讲话：")
-#         my_record()
-#         question = voice_to_text_baidu_sdk('output.wav')
-#         print(question)
+while True:
+    pcm = audio_stream.read(porcupine.frame_length)
+    pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
+    keyword_index = porcupine.process(pcm)
+    if keyword_index >= 0:
+        # Insert detection event callback here
+        print("收到,请讲话：")
+        my_record()
         
-#         # print(chat_unit(question)['result']['context']['SYS_PRESUMED_HIST'][-1])
-#         print(chat_own_think(question))
+        question = voice_to_text_baidu_sdk('output.wav')
         
+        print(question)
         
+        # print(chat_unit(question)['result']['context']['SYS_PRESUMED_HIST'][-1])
+        try:
+            print(chat_unit(question)['result']['responses'][0]['actions'][0]['say'])
+        except KeyError:
+            print("请提问！")
+        except TypeError:
+            print("请提问！")
 
-print(chat_unit('今天是星期几')['result']['responses'][0]['actions'][0]['say'])
+        
+        
+# try:
+#   print(chat_unit(' ')['result']['responses'][0]['actions'][0]['say'])
+# except KeyError:
+#   print("请提问！")
+# except TypeError:
+#   print("请提问！")
+  

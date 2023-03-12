@@ -1,49 +1,34 @@
-"""
-数据：网页表单上获得的点灯指令需要发送到树莓派上，所有数据库的数据都来自树莓派
-运行：直接运行即可。先运行后再运行树莓派上的
-"""
+from flask import Flask, render_template, request
 from flask_socketio import SocketIO
-from flask import Flask,render_template,request
+from random import random
+from threading import Lock,Thread
+from datetime import datetime
 import socket
 import sys
 import sqlite3
 import os
-import time
-from threading import Thread,Lock
-from datetime import datetime
-from random import random
 
+"""
+Background Thread
+"""
 thread = None
 thread_lock = Lock()
-ind = 10
 HOST = '10.0.12.13'
+ADDR2 = (HOST, 8081)
 PORT = 7789     # socket通信端口
 BUFSIZ = 1024
 ADDR = (HOST, PORT)
-ADDR2 = (HOST, 8081)
-led_status_on  = 1
-led_status_off = 0
-led_status = led_status_off
 
-# 若没有则创建名为data的数据库。并添加名为data的table。每一行为：ID，date_time，device_id，led_status  
-if not os.path.isfile('data.db'):
-    conn = sqlite3.connect('data.db')
-    c = conn.cursor()
-    c.execute("""CREATE TABLE data (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date_time text, 
-        device_id integer,
-        led_status integer
-        )""")
-    conn.commit()
-    conn.close()
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'donsky!'
+socketio = SocketIO(app, cors_allowed_origins='*')
 
 # 保存来自树莓派发送过来的数据
 def date_save_rasp(device_id,time_from_rasp,led_status):
     conn = sqlite3.connect('data.db')
     c = conn.cursor()
     c.execute("INSERT INTO data VALUES(:Id,  :date_time, :device_id, :led_status)",
-            {'Id': None,  'date_time': time_from_rasp,  'device_id': int(device_id),  'led_status': int(led_status)})
+            {'Id': None,  'date_time': time_from_rasp,  'device_id': device_id,  'led_status': int(led_status)})
     conn.commit()
     c.close()
     conn.close()
@@ -66,19 +51,18 @@ def date_check():
     c.execute(sql)  
     return c.fetchone()
 
+"""
+Get current date time
+"""
 def get_current_datetime():
     now = datetime.now()
     return now.strftime("%m/%d/%Y %H:%M:%S")
 
-def receive_data_background():
-    try:
-        soc_bg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        soc_bg.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        soc_bg.bind(ADDR2)  # 在不同主机或者同一主机的不同系统下使用实际ip
-        soc_bg.listen(10)
-    except socket.error as msg:
-        print(msg)
-        sys.exit(1)
+"""
+Generate random sequence of dummy sensor values and send it to our clients
+"""
+def background_thread():
+
     print("..................Wait for Connection..................")
     sock, address = soc_bg.accept()
     print("Generating random sensor values")
@@ -88,20 +72,29 @@ def receive_data_background():
         socketio.emit('updateSensorData', {'value': data_from_raspberry[2], "date": get_current_datetime()})
         socketio.sleep(1)
 
+if not os.path.isfile('data.db'):
+    conn = sqlite3.connect('data.db')
+    c = conn.cursor()
+    c.execute("""CREATE TABLE data (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date_time text, 
+        device_id integer,
+        led_status integer
+        )""")
+    conn.commit()
+    conn.close()
 
 
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'donsky!'
-socketio = SocketIO(app, cors_allowed_origins='*')
+"""
+Serve root index file
+"""
+# @app.route('/')
+# def refresh():
+#     return render_template('refresh.html')
 
 @app.route("/index", methods=['GET', "POST"])
 def index():     
     return render_template("index.html")
-
-@app.route("/refresh", methods=['GET', "POST"])
-def refresh():     
-    return render_template("refresh.html")
 
 # 查看最新的亮灯时间
 @app.route("/message", methods=['GET', "POST"])
@@ -124,6 +117,10 @@ def control():
         print('指令已发送')
         return render_template("index.html")
 
+
+"""
+Decorator for connect
+"""
 @socketio.on('connect')
 def connect():
     global thread
@@ -132,7 +129,7 @@ def connect():
     global thread
     with thread_lock:
         if thread is None:
-            thread = socketio.start_background_task(receive_data_background)
+            thread = socketio.start_background_task(background_thread)
 
 """
 Decorator for disconnect
@@ -141,8 +138,16 @@ Decorator for disconnect
 def disconnect():
     print('Client disconnected',  request.sid)
 
-
 if __name__ == '__main__':
+    try:
+        soc_bg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        soc_bg.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        soc_bg.bind(ADDR2)  # 在不同主机或者同一主机的不同系统下使用实际ip
+        soc_bg.listen(10)
+    except socket.error as msg:
+        print(msg)
+        sys.exit(1)
+
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -154,8 +159,5 @@ if __name__ == '__main__':
     sock, addr = s.accept()
 
     Thread(target = receive_from_rasp).start()
-    Thread(target = socketio.run(app,host='0.0.0.0')).start()
-        
-    
 
-
+    socketio.run(app,host='0.0.0.0', port=5000)

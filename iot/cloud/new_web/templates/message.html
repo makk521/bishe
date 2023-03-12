@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Your Page Title</title>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+		
+		<link href="//mincss.com/entireframework.min.css" rel="stylesheet" type="text/css">
+		<link href="//mincss.com/entireframework.min.css" rel="stylesheet"  type="text/css" />
+		<link href="{{url_for('static', filename = 'css/app.css')}}" rel="stylesheet">
+
+		<style>
+			.hero {
+				background: #eee;
+				padding: 20px;
+				border-radius: 10px;
+				margin-top: 1em;
+			}
+
+			.hero h1 {
+				margin-top: 0;
+				margin-bottom: 0.3em;
+			}
+
+			.c4 {
+				padding: 10px;
+				box-sizing: border-box;
+			}
+
+			.c4 h3 {
+				margin-top: 0;
+			}
+
+			.c4 a {
+				margin-top: 10px;
+				display: inline-block;
+			}
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript" src="{{ url_for('static', filename = 'js/app.js') }}"></script>
+		
+		<nav class="nav" tabindex="-1" onclick="this.focus()">
+			<div class="container">
+				<a class="pagename current" href="index">主页面</a>
+				<a href="control">控制界面</a>
+				<a href="message">监测界面</a> 
+				
+			</div>
+		</nav>
+		<button class="btn-close btn btn-sm">×</button>
+		
+		<div class="container">
+			<div class="hero">
+				<h1>LED的当前状态:</h1>
+                <p style="font-size: 30px;">{{led_status}}</p>
+				<!-- <div style="width: 400px;">
+					<canvas id="myChart" ></canvas>
+				</div> -->
+			</div>
+		</div>
+
+		<div class="container">
+			<div class="hero">
+				<h1>上此LED灯亮时间:</h1>
+				<p style="font-size: 30px;">{{led_on_time}}</p>
+			</div>
+		</div>
+
+		<div class="container">
+			<div class="hero">
+				<div style="width: 400px;">
+					<canvas id="myChart" ></canvas>
+				</div>
+			</div>
+		</div>
+
+		</div>
+	</body>
+
+</html>
+
+
+
+
+
+
+
+

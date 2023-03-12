@@ -43,7 +43,7 @@ def my_record():
                    frames_per_buffer=NUM_SAMPLES)
     my_buf=[]
     count=0
-    while count<TIME*8:#控制录音时间
+    while count<TIME*8:   # 控制录音时间
         string_audio_data = stream.read(NUM_SAMPLES)
         my_buf.append(string_audio_data)
         count+=1
@@ -74,6 +74,7 @@ def voice_to_text_baidu_sdk(filePath):
             return result.get('result')[0]
         except TypeError:
             return ' '
+        
 # 输入为字符串，输出为问题答案
 def chat_unit(QUESTION):   
     post_data = "{\"version\":\"3.0\",\"service_id\":\"S80122\",\"session_id\":\"\",\"log_id\":\"1114749\",\"request\":{\"terminal_id\":\"88888\",\"query\":\"" + QUESTION +"\"}} "
@@ -97,8 +98,6 @@ audio_stream = pa.open(
                     format=pyaudio.paInt16,
                     input=True,
                     frames_per_buffer=porcupine.frame_length)
-#def get_next_audio_frame():
-#  return 
 
 
 while True:
@@ -106,15 +105,12 @@ while True:
     pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
     keyword_index = porcupine.process(pcm)
     if keyword_index >= 0:
-        # Insert detection event callback here
         print("收到,请讲话：")
         my_record()
-        
         question = voice_to_text_baidu_sdk('output.wav')
         
         print(question)
         
-        # print(chat_unit(question)['result']['context']['SYS_PRESUMED_HIST'][-1])
         try:
             print(chat_unit(question)['result']['responses'][0]['actions'][0]['say'])
         except KeyError:

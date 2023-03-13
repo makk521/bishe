@@ -54,8 +54,8 @@ def send_data_background(addr,delay_time):
     while(True):
         led_status   =  GPIO.input(LED) # 0/1
         fun_status   =  GPIO.input(FUN)
-        temperature  =  sht.temperature().C
-        humidity     =  sht.humidity().RH
+        temperature  =  format(sht.temperature().C, '.2f') 
+        humidity     =  format(sht.humidity().RH, '.2f') 
         data = str((led_status , fun_status , temperature , humidity))
         soc_bg.send(data.encode('utf-8'))
         time.sleep(delay_time)

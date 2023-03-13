@@ -2,7 +2,6 @@
 用法：直接运行即可
 现象：见云端主函数
 总结：做的事就是一直等云端发送数据，如果是发过来了'1'，表示开灯。同时按键也被检测着，一旦被按下则触发中断（另一个线程），灯也亮起。
-数据发送：每次灯亮发送一次，灯灭发送一次，发送的数据格式为(device_id,time_from_rasp,led_status)，对应云端数据库。
 """
 
 import RPi.GPIO as GPIO
@@ -24,6 +23,7 @@ FORNITURE_CURREN_STATUS = {'led':0,'fun':0}
 web_submit_status = FORNITURE_CONTROL['led_off']  # 网页端按下submit(选择了开灯)，则发送过来 '1'
 
 # 初始化端口
+GPIO.setwarnings(False) 
 GPIO.setmode(GPIO.BCM) 
 LED = 27
 FUN = 26
@@ -104,22 +104,22 @@ if __name__ == '__main__':
             data = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             send_data('led',data,1)
             GPIO.output(LED,GPIO.HIGH)
-            FORNITURE_CURREN_STATUS['led'] = 1
+
         elif(web_submit_status == FORNITURE_CONTROL['led_off']):
             GPIO.output(LED,GPIO.LOW)
             data = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             send_data('led',data,0)
-            FORNITURE_CURREN_STATUS['led'] = 0
+
         elif(web_submit_status == FORNITURE_CONTROL['fun_on']):
             GPIO.output(FUN,GPIO.HIGH)
             data = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             send_data('fun',data,1)
-            FORNITURE_CURREN_STATUS['fun'] = 1
+
         elif(web_submit_status == FORNITURE_CONTROL['fun_off']):
             GPIO.output(FUN,GPIO.LOW)
             data = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             send_data('fun',data,0)
-            FORNITURE_CURREN_STATUS['fun'] = 0
+
         else:
             pass
             

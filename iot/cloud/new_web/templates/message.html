@@ -44,8 +44,9 @@
 		</style>
 	</head>
 	<body>
-		<script type="text/javascript" src="{{ url_for('static', filename = 'js/app.js') }}"></script>
-		
+		<script type="text/javascript" src="{{ url_for('static', filename = 'js/app_temperature.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename = 'js/app_humidity.js') }}"></script>
+
 		<nav class="nav" tabindex="-1" onclick="this.focus()">
 			<div class="container">
 				<a class="pagename current" href="index">主页面</a>
@@ -59,29 +60,66 @@
 		<div class="container">
 			<div class="hero">
 				<h1>LED的当前状态:</h1>
-                <p style="font-size: 30px;">{{led_status}}</p>
-				<!-- <div style="width: 400px;">
-					<canvas id="myChart" ></canvas>
-				</div> -->
+				<p id="led_status" style="font-size: 30px;"></p>
+                <!-- <p style="font-size: 30px;">{{led_status}}</p> -->
 			</div>
 		</div>
 
 		<div class="container">
+			<div class="hero">
+				<h1>风扇的当前状态:</h1>
+				<p id="fun_status" style="font-size: 30px;"></p>
+                <!-- <p style="font-size: 30px;">{{led_status}}</p> -->
+			</div>
+		</div>
+
+		<!-- <div class="container">
 			<div class="hero">
 				<h1>上此LED灯亮时间:</h1>
 				<p style="font-size: 30px;">{{led_on_time}}</p>
 			</div>
+		</div> -->
+
+		<div class="container">
+			<div class="hero">
+				<div style="width: 600px;">
+					<canvas id="myChart_temperature" ></canvas>
+				</div>
+			</div>
 		</div>
 
 		<div class="container">
 			<div class="hero">
-				<div style="width: 400px;">
-					<canvas id="myChart" ></canvas>
+				<div style="width: 600px;">
+					<canvas id="myChart_humidity" ></canvas>
 				</div>
 			</div>
 		</div>
 
 		</div>
+
+		<script>
+			var socket = io.connect();
+		
+			socket.on("updateSensorData", function (msg) {
+				console.log("Received sensorData :: " + msg.date + " :: " + msg.led_status);
+				if (msg.led_status == 1){
+					document.getElementById("led_status").innerHTML = "on";
+				}
+				else if(msg.led_status == 0){
+					document.getElementById("led_status").innerHTML = "off";
+				}
+
+				if (msg.fun_status == 1){
+					document.getElementById("fun_status").innerHTML = "on";
+				}
+				else if (msg.fun_status == 0){
+					document.getElementById("fun_status").innerHTML = "off";
+				}
+
+			});
+  
+		</script>
 	</body>
 
 </html>

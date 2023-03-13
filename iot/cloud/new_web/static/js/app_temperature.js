@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  const ctx = document.getElementById("myChart").getContext("2d");
+  const ctx = document.getElementById("myChart_temperature").getContext("2d");
 
   const myChart = new Chart(ctx, {
     type: "line",
@@ -34,12 +34,12 @@ $(document).ready(function () {
 
   //receive details from server
   socket.on("updateSensorData", function (msg) {
-    console.log("Received sensorData :: " + msg.date + " :: " + msg.value);
+    console.log("Received sensorData :: " + msg.date + " :: " + msg.temperature);
 
     // Show only MAX_DATA_COUNT data
     if (myChart.data.labels.length > MAX_DATA_COUNT) {
       removeFirstData();
     }
-    addData(msg.date, msg.value);
+    addData(msg.date, msg.temperature);
   });
 });

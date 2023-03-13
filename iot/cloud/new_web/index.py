@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
-from random import random
 from threading import Lock,Thread
 from datetime import datetime
 import socket
@@ -69,7 +68,7 @@ def background_thread():
     while True:
         buf = sock.recv(1024)
         data_from_raspberry = eval(buf.decode('utf-8'))
-        socketio.emit('updateSensorData', {'value': data_from_raspberry[2], "date": get_current_datetime()})
+        socketio.emit('updateSensorData', {'led_status':data_from_raspberry[0] ,'fun_status':data_from_raspberry[1],'temperature': data_from_raspberry[2],"humidity":data_from_raspberry[3], "date": get_current_datetime()})
         socketio.sleep(1)
 
 if not os.path.isfile('data.db'):
@@ -88,9 +87,6 @@ if not os.path.isfile('data.db'):
 """
 Serve root index file
 """
-# @app.route('/')
-# def refresh():
-#     return render_template('refresh.html')
 
 @app.route("/index", methods=['GET', "POST"])
 def index():     
@@ -112,10 +108,14 @@ def control():
     if request.method == "GET":
         return render_template("control.html")
     else:
-        led_status_control = request.form.get("led_status_control")  # 在网页表单上获取led_status_control
-        sock.send(led_status_control.encode('utf-8'))                # 将获取的状态值发到树莓派
+        try:
+            led_status_control = request.form.get("led_status_control")  # 在网页表单上获取led_status_control
+            sock.send(led_status_control.encode('utf-8'))                # 将获取的状态值发到树莓派
+        except AttributeError:
+            fun_status_control = request.form.get("fun_status_control")  # 在网页表单上获取led_status_control
+            sock.send(fun_status_control.encode('utf-8'))        
         print('指令已发送')
-        return render_template("index.html")
+        return render_template("control.html")
 
 
 """

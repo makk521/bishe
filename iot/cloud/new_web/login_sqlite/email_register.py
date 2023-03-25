@@ -1,0 +1,1 @@
+echo 'hello' | mail -s 'hello,world' maqun2019@qq.com

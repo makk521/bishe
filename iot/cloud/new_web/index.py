@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, redirect, url_for, flash ,Response
 from flask_socketio import SocketIO
 from threading import Lock,Thread
 from datetime import datetime
@@ -20,7 +20,14 @@ ADDR = (HOST, PORT)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'donsky!'
+DATABASE = 'data.db'
 socketio = SocketIO(app, cors_allowed_origins='*')
+
+# 创建用户表
+def create_table():
+    conn = sqlite3.connect(DATABASE)
+    conn.execute('CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)')
+    conn.close()
 
 # 保存来自树莓派发送过来的数据
 def date_save_rasp(device_id,time_from_rasp,led_status):
@@ -92,6 +99,50 @@ Serve root index file
 def index():     
     return render_template("index.html")
 
+# 注册功能
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        # 获取表单提交的数据
+        username = request.form['username']
+        password = request.form['password']
+        
+        # 在数据库中插入新用户
+        conn = sqlite3.connect(DATABASE)
+        conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
+        conn.commit()
+        conn.close()
+        
+        
+        return redirect(url_for('login'))
+    else:
+        return render_template("register.html")
+
+# 登录功能
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # 获取表单提交的数据
+        username = request.form['username']
+        password = request.form['password']
+        
+        # 查询用户是否存在
+        conn = sqlite3.connect(DATABASE)
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password))
+        user = cur.fetchone()
+        conn.close()
+        
+        if user:
+            session['username'] = user[0]
+            
+            return render_template("index.html")
+        else:
+            flash('用户名或密码错误！')
+            return redirect(url_for('login'))
+    else:
+        return render_template("login.html")
+
 # 查看最新的亮灯时间
 @app.route("/message", methods=['GET', "POST"])
 def message():
@@ -139,6 +190,7 @@ def disconnect():
     print('Client disconnected',  request.sid)
 
 if __name__ == '__main__':
+    create_table()
     try:
         soc_bg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         soc_bg.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

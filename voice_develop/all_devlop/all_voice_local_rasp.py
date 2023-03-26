@@ -8,7 +8,7 @@ import pyaudio
 import pvporcupine
 import wave
 import subprocess
-
+import RPi.GPIO as GPIO
 
 
 url = 'https://aip.baidubce.com/rpc/2.0/unit/service/v3/chat?access_token=24.3666976f79d1b2fa4394975b9220df55.2592000.1680009411.282335-29476996' # token id
@@ -23,6 +23,14 @@ channels=1
 sampwidth=2
 TIME=5
 PATH_OUTPUT_WAV = '/home/pi/Desktop/bishe/voice_recongnize_local/sherpa-ncnn-conv-emformer-transducer-2022-12-06/test_wavs'
+
+# 初始化端口
+GPIO.setwarnings(False) 
+GPIO.setmode(GPIO.BCM) 
+LED = 27
+FUN = 26
+GPIO.setup(LED, GPIO.OUT)
+GPIO.setup(FUN, GPIO.OUT)
 
 
 def save_wave_file(filename,data):
@@ -93,10 +101,25 @@ if __name__ == '__main__':
             question = voice_to_text_sherpnn()
             
             print(question)
-            keywords = ["打开", "开"]
-            if all(keyword in question for keyword in keywords):
-                print("The string contains all of the keywords.")
+            # keywords = ["打开", "开","关"]
+            # if all(keyword in question for keyword in keywords):
+            if("开" in question and "灯" in question):
+                GPIO.output(LED,GPIO.HIGH)
+                print("已打开")
                 continue
+            elif("风扇" in question and "开" in question):
+                GPIO.output(FUN,GPIO.HIGH)
+                print("已打开")
+                continue
+            elif("关" in question and "灯" in question):
+                GPIO.output(LED,GPIO.LOW)
+                print("已执行")
+                continue
+            elif("关" in question and "风扇" in question ):
+                GPIO.output(FUN,GPIO.LOW)
+                print("已执行")
+                continue
+
 
             try:
                 print(chat_unit(question)['result']['responses'][0]['actions'][0]['say'])

@@ -120,6 +120,7 @@ def register():
 
 # 登录功能
 @app.route('/login', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         # 获取表单提交的数据

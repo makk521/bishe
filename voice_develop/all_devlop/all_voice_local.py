@@ -15,7 +15,7 @@ url = 'https://aip.baidubce.com/rpc/2.0/unit/service/v3/chat?access_token=24.366
 headers = {'content-type': 'application/x-www-form-urlencoded'}
 access_key = "sW1Yaw75+skf0DsSleqzS6nMaMpK1ku3hTDNh8/7GGmD6s4y2Ri+sQ==" #porcupine
 # porcupine = pvporcupine.create( access_key=access_key,keywords=['porcupine', 'ok google', "picovoice", "blueberry"],sensitivities=[1.0,1.0,1.0,1.0])
-model_file_path = "hot_dog_raspberry.ppn"
+model_file_path = "hot_dog_windows.ppn"
 porcupine = pvporcupine.create( access_key=access_key,keyword_paths = [model_file_path],sensitivities=[1.0] )
 framerate=16000
 NUM_SAMPLES=2000

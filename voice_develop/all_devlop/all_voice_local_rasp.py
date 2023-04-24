@@ -107,7 +107,7 @@ if __name__ == '__main__':
                 GPIO.output(LED,GPIO.HIGH)
                 print("已打开")
                 continue
-            elif("风扇" in question and "开" in question):
+            elif("空气" in question and "开" in question):
                 GPIO.output(FUN,GPIO.HIGH)
                 print("已打开")
                 continue
@@ -115,7 +115,7 @@ if __name__ == '__main__':
                 GPIO.output(LED,GPIO.LOW)
                 print("已执行")
                 continue
-            elif("关" in question and "风扇" in question ):
+            elif("关" in question and "空气" in question ):
                 GPIO.output(FUN,GPIO.LOW)
                 print("已执行")
                 continue

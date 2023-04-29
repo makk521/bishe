@@ -60,7 +60,6 @@ pip3 install xxx.whl
 https://www.piwheels.org/simple/
 ```
 
-
 ## sherpa-ncnn在树莓派上运行
 
 ### linux（ubuntu）安装cmake等
@@ -165,4 +164,18 @@ ubuntu@VM-12-13-ubuntu:~/software/sherpa-ncnn-conv-emformer-transducer-2022-12-0
 -rw-rw-r-- 1 ubuntu ubuntu 3.5M Jan 28 13:51 joiner_jit_trace-pnnx.ncnn.int8.bin
 -rw-rw-r-- 1 ubuntu ubuntu  498 Jan 28 13:46 joiner_jit_trace-pnnx.ncnn.int8.param
 -rw-rw-r-- 1 ubuntu ubuntu  490 Jan 28 13:46 joiner_jit_trace-pnnx.ncnn.p
+```
+
+
+## 中期答辩演示
+
+```
+cloud:
+source python-flask-socketio-main/ma/bin/activate
+python3 ma/new_web/index.py
+
+raspberry:
+python ma/all_key.py
+
+python /home/pi/Desktop/bishe/voice_recongnize_local/all_voice_local_rasp.py
 ```

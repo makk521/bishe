@@ -10,7 +10,6 @@ import sys
 import time
 from sensor import SHT20
 from threading import Thread
-import subprocess
 
 HOST = '124.223.76.58'  # 服务器的公网IP
 PORT1 = 7789             # IP开放的socket端口
@@ -32,16 +31,13 @@ GPIO.setup(LED, GPIO.OUT)
 GPIO.setup(FUN, GPIO.OUT)
 BUTTON_LED = 17                   # 后期换成传感器
 BUTTON_FUN = 18
-BUTTON_DISPLAY = 22
-display_status = 1
-GPIO.setup(BUTTON_LED, GPIO.IN, pull_up_down=GPIO.PUD_UP)   # 引脚默认高电平（拉高），按下后接地引脚电平被拉低'
+GPIO.setup(BUTTON_LED, GPIO.IN, pull_up_down=GPIO.PUD_UP)   # 引脚默认高电平（拉高），按下后接地引脚电平被拉低
 GPIO.setup(BUTTON_FUN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(BUTTON_DISPLAY, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.output(LED,GPIO.LOW)
 
 def send_data_background(addr,delay_time):
     """
-    Send furniture status and sensor data
+    Send furniture status and sensor data to cloud all time in one thread
 
     Arguments:
     addr         -  ('cloud_public_mac', PORT)
@@ -56,6 +52,7 @@ def send_data_background(addr,delay_time):
     except socket.error as msg:
         print(msg)
         print(sys.exit(1))
+    time.sleep(3)     # 需要缓冲时间
     sht = SHT20(1, 0x40)
     while(True):
         led_status   =  GPIO.input(LED) # 0/1
@@ -91,9 +88,9 @@ def led_button_callback(BUTTON_LED):
         pass
 
 def fun_button_callback(BUTTON_FUN):
-    '''
+    """
     When the button is pressed, the current state of the FUN is changed and the information is sent to the cloud
-    '''
+    """
     data = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '  raspberry'      # 当前时间
     print('按键按下')
     if GPIO.input(FUN) == 1:
@@ -105,18 +102,8 @@ def fun_button_callback(BUTTON_FUN):
     else:
         pass
 
-def display_change(BUTTON_DISPLAY):
-    global display_status
-    if display_status == 1:
-        subprocess.run("vcgencmd display_power 0", shell=True, check=True)
-        display_status = 0
-    else:
-        subprocess.run("vcgencmd display_power 1", shell=True, check=True)
-        display_status = 1
-
 GPIO.add_event_detect(BUTTON_LED, GPIO.RISING, callback=led_button_callback, bouncetime=400)    # 检测BUTTON_LED的中断函数
 GPIO.add_event_detect(BUTTON_FUN, GPIO.RISING, callback=fun_button_callback, bouncetime=400)    # 检测BUTTON_FUN的中断函数
-GPIO.add_event_detect(BUTTON_DISPLAY, GPIO.RISING, callback=display_change, bouncetime=400)
 
 if __name__ == '__main__':
     Thread(target = send_data_background,args=(ADDR2,5)).start()
@@ -128,6 +115,8 @@ if __name__ == '__main__':
     except socket.error as msg:
         print(msg)
         print(sys.exit(1))
+
+
     # 树莓派主函数就是接受云端是否发来开灯指令，所以需要一直接收着（后面扩展的话可以参考云端的index.py双线程）
     while(True):
         web_submit_status = int(s.recv(BUFSIZ).decode('utf-8'))   # 一直等着收，收着了才继续向下运行，云端发送过来的是'1'
